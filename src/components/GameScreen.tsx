@@ -204,58 +204,47 @@ export default function GameScreen({
         )}
       </header>
 
-      {/* Main Content scrollable view */}
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4 max-w-md mx-auto w-full no-scrollbar pb-28">
-        {/* 2. TARGET COLOR SPEC CARD */}
-        <div className="bg-white rounded-2xl border-3 border-[#1E1E1E] p-3 shadow-[4px_4px_0px_0px_#1E1E1E] flex items-center gap-4">
-          {/* Target Orb (Physical Paint styled sphere) */}
-          <div className="relative w-18 h-18 rounded-full flex-shrink-0 border-3 border-[#1E1E1E]">
-            <div
-              className="w-full h-full rounded-full"
-              style={{
-                backgroundColor: targetHex,
-              }}
-            />
-            {/* Small Sparkle visual badge */}
-            <div className="absolute -top-1 -right-1 bg-[#FCE300] border-2 border-[#1E1E1E] rounded-full p-0.5 shadow-sm">
-              <Sparkles className="w-3 h-3 text-[#1E1E1E]" />
+      {/* Main Content: flex layout, no scroll */}
+      <div className="flex-1 flex flex-col min-h-0 px-4 py-2 max-w-md mx-auto w-full space-y-2" style={{ paddingBottom: 'calc(0.5rem + env(safe-area-inset-bottom, 0px))' }}>
+        {/* 2. TARGET COLOR SPEC CARD (compact) */}
+        <div className="flex-shrink-0 bg-white rounded-2xl border-3 border-[#1E1E1E] p-2.5 shadow-[4px_4px_0px_0px_#1E1E1E] flex items-center gap-3">
+          {/* Target Orb */}
+          <div className="relative w-10 h-10 rounded-full flex-shrink-0 border-2 border-[#1E1E1E]">
+            <div className="w-full h-full rounded-full" style={{ backgroundColor: targetHex }} />
+            <div className="absolute -top-0.5 -right-0.5 bg-[#FCE300] border-2 border-[#1E1E1E] rounded-full p-0.5">
+              <Sparkles className="w-2.5 h-2.5 text-[#1E1E1E]" />
             </div>
           </div>
-
-          <div className="flex-1">
-            <div className="flex items-center gap-1.5 mb-1">
-              <span className="text-[10px] uppercase font-bold tracking-widest text-[#9A3412] bg-[#FFedd5] px-1.5 py-0.5 rounded-md border border-[#9A3412]/20">
-                目标色 Target
-              </span>
-            </div>
-            <h2 className="text-base font-bold text-[#1E1E1E]">{level.name}</h2>
-            <p className="text-[11px] text-[#6B5A4E] leading-snug mt-0.5">
-              {level.description}
-            </p>
+          <div className="flex-1 min-w-0">
+            <span className="text-[9px] uppercase font-bold tracking-widest text-[#9A3412] bg-[#FFedd5] px-1.5 py-0.5 rounded-md border border-[#9A3412]/20">
+              目标色 Target
+            </span>
+            <h2 className="text-sm font-bold text-[#1E1E1E] truncate">{level.name}</h2>
+            <p className="text-[10px] text-[#6B5A4E] leading-tight truncate">{level.description}</p>
           </div>
         </div>
 
-        {/* 3. DYNAMIC CANVAS WORKSPACE */}
-        <PaintCanvas
-          balls={balls}
-          setBalls={setBalls}
-          onRemoveBall={handleRemoveBall}
-          maxBalls={level.maxBalls}
-        />
+        {/* 3. CANVAS: 自适应填满剩余空间，正方形约束 */}
+        <div className="flex-1 min-h-0 w-full flex items-center justify-center">
+          <div className="aspect-square max-h-full max-w-full" style={{ width: '100%', maxWidth: '100%' }}>
+            <PaintCanvas
+              balls={balls}
+              setBalls={setBalls}
+              onRemoveBall={handleRemoveBall}
+              maxBalls={level.maxBalls}
+            />
+          </div>
+        </div>
 
-        {/* 4. BASIC PALETTE CARD (Placed directly under PaintCanvas and scrolls with it) */}
-        <div className="bg-white rounded-2xl border-3 border-[#1E1E1E] p-3.5 shadow-[4px_4px_0px_0px_#1E1E1E]">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-[#1E1E1E] flex items-center gap-1">
-              🎨 基础颜料盘 <span className="text-[10px] font-medium text-gray-500">(点击添加，最多 {level.maxBalls} 个球)</span>
-            </span>
+        {/* 4. PALETTE (compact, horizontal scroll) */}
+        <div className="flex-shrink-0 bg-white rounded-2xl border-3 border-[#1E1E1E] p-2.5 shadow-[4px_4px_0px_0px_#1E1E1E]">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[11px] font-bold text-[#1E1E1E]">🎨 基础颜料盘</span>
+            <span className="text-[9px] text-gray-500">最多 {level.maxBalls} 个球</span>
           </div>
 
-          {/* Horizontal scroll of paint color swatches */}
-          <div
-            id="paint-palette-scroll"
-            className="flex gap-4 overflow-x-auto py-1 px-0.5 scrollbar-none no-scrollbar"
-          >
+          {/* Horizontal scroll of paint color swatches (compact) */}
+          <div className="flex gap-3 overflow-x-auto py-1 no-scrollbar">
             {allowedPaints.map((color) => {
               const count = colorCounts[color.id] || 0;
               const hasAdded = count > 0;
@@ -264,32 +253,24 @@ export default function GameScreen({
                 <button
                   key={color.id}
                   onClick={() => handleAddPaint(color)}
-                  className="cursor-pointer flex flex-col items-center flex-shrink-0 focus:outline-none relative group"
-                  style={{ minWidth: "56px" }}
+                  className="cursor-pointer flex flex-col items-center flex-shrink-0 focus:outline-none relative"
+                  style={{ minWidth: "44px" }}
                 >
                   <div
-                    className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all ${
+                    className={`relative w-9 h-9 rounded-full flex items-center justify-center transition-all ${
                       hasAdded
-                        ? "scale-105 border-4 border-[#0B8A3C]"
-                        : "border-2 border-[#1E1E1E] hover:scale-102 active:scale-98"
+                        ? "scale-105 border-[3px] border-[#0B8A3C]"
+                        : "border-2 border-[#1E1E1E] hover:scale-105 active:scale-95"
                     }`}
                   >
-                    <div
-                      className="w-full h-full rounded-full"
-                      style={{
-                        backgroundColor: color.hex,
-                      }}
-                    />
-
-                    {/* Paint Ball Counter Badge */}
+                    <div className="w-full h-full rounded-full" style={{ backgroundColor: color.hex }} />
                     {hasAdded && (
-                      <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-[#0B8A3C] text-white text-[10px] font-bold flex items-center justify-center border border-white">
+                      <div className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-[#0B8A3C] text-white text-[9px] font-bold flex items-center justify-center border border-white">
                         {count}
                       </div>
                     )}
                   </div>
-
-                  <span className="text-[10px] font-bold font-sans text-[#1E1E1E] mt-1 line-clamp-1 max-w-[56px]">
+                  <span className="text-[9px] font-bold text-[#1E1E1E] mt-0.5 line-clamp-1 max-w-[44px]">
                     {color.name}
                   </span>
                 </button>
@@ -297,58 +278,54 @@ export default function GameScreen({
             })}
           </div>
         </div>
-      </div>
 
-      {/* 7. FIXED STICKY CONTROL BOTTOM BAR */}
-      <footer className="absolute bottom-0 left-0 right-0 p-4 border-t-3 border-[#1E1E1E] bg-white z-30 shadow-[0_-8px_20px_rgba(30,30,30,0.08)] flex flex-col gap-3" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
-        {/* WARNING ALERT NOTIFICATION */}
-        <AnimatePresence>
-          {warningMsg && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              className="bg-[#FFEBEB] text-[#8C2D2A] text-xs font-bold py-2 px-3 rounded-xl border-2 border-[#8C2D2A]/30 text-center shadow-sm"
-            >
-              ⚠️ {warningMsg}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Bottom bar: in flex flow, popups overlay above */}
+        <div className="flex-shrink-0 relative px-4 py-3 border-t-3 border-[#1E1E1E] bg-white shadow-[0_-8px_20px_rgba(30,30,30,0.08)]" style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}>
+          {/* Popups overlay above buttons (absolute, bottom-full) */}
+          <div className="absolute bottom-full left-0 right-0 px-4 pb-3 pointer-events-none">
+            <AnimatePresence>
+              {warningMsg && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="bg-[#FFEBEB] text-[#8C2D2A] text-xs font-bold py-2 px-3 rounded-xl border-2 border-[#8C2D2A]/30 text-center shadow-sm pointer-events-auto"
+                >
+                  ⚠️ {warningMsg}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-        {/* 6. RECIPE HINT BANNER */}
-        <AnimatePresence>
-          {showHint && (
-            <motion.div
-              initial={{ opacity: 0, y: 8, scaleY: 0.9 }}
-              animate={{ opacity: 1, y: 0, scaleY: 1 }}
-              exit={{ opacity: 0, y: 8, scaleY: 0.9 }}
-              className="bg-[#FFFDE0] rounded-xl border-2 border-dashed border-[#BCA86F] p-3 text-center shadow-sm relative overflow-hidden"
-            >
-              {/* Post-it visual pins */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-2.5 bg-red-400/40" />
+            <AnimatePresence>
+              {showHint && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8, scaleY: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scaleY: 1 }}
+                  exit={{ opacity: 0, y: 8, scaleY: 0.9 }}
+                  className="bg-[#FFFDE0] rounded-xl border-2 border-dashed border-[#BCA86F] p-3 text-center shadow-sm relative overflow-hidden pointer-events-auto"
+                >
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-2.5 bg-red-400/40" />
+                  <span className="text-[9px] uppercase font-bold text-[#8C7D54] tracking-wider block mb-1">
+                    🎨 参考配方 Reference Formula
+                  </span>
+                  <p className="text-sm font-sans font-bold text-[#6D5D30]">
+                    {getRecipeHint(level.recipe)}
+                  </p>
+                  <p className="text-[10px] text-[#8C7D54]/80 mt-1 leading-snug">
+                    拖动带有该配方数量的颜料球在画布里，使它们尽量重叠融合吧。
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-              <span className="text-[9px] uppercase font-bold text-[#8C7D54] tracking-wider block mb-1">
-                🎨 参考配方 Reference Formula
-              </span>
-              <p className="text-sm font-sans font-bold text-[#6D5D30]">
-                {getRecipeHint(level.recipe)}
-              </p>
-              <p className="text-[10px] text-[#8C7D54]/80 mt-1 leading-snug">
-                拖动带有该配方数量的颜料球在画布里，使它们尽量重叠融合吧。
-              </p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* 5. VERIFICATION / RESULT POPUP */}
-        <AnimatePresence>
-          {showResults && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 12 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 12 }}
-              className="bg-[#FFFBF5] rounded-2xl border-3 border-[#1E1E1E] shadow-[4px_4px_0px_0px_#1E1E1E] overflow-hidden"
-            >
+            <AnimatePresence>
+              {showResults && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, y: 12 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, y: 12 }}
+                  className="bg-[#FFFBF5] rounded-2xl border-3 border-[#1E1E1E] shadow-[4px_4px_0px_0px_#1E1E1E] overflow-hidden pointer-events-auto"
+                >
               <div className="p-4 flex flex-col items-center text-center space-y-3">
                 <div className="flex items-center gap-3">
                   {/* Visual side-by-side comparison */}
@@ -546,8 +523,9 @@ export default function GameScreen({
             </motion.div>
           )}
         </AnimatePresence>
+          </div>
 
-        <div className="max-w-md mx-auto w-full grid grid-cols-3 gap-3">
+          <div className="max-w-md mx-auto w-full grid grid-cols-3 gap-3">
           {/* Hint button */}
           <button
             disabled={isSurvival && survivalLives === 0}
@@ -587,7 +565,8 @@ export default function GameScreen({
             <span>检验</span>
           </button>
         </div>
-      </footer>
+        </div>
+      </div>
     </div>
   );
 }

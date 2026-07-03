@@ -364,7 +364,7 @@ export default function PaintCanvas({
     <div
       id="paint-canvas-container"
       ref={containerRef}
-      className="relative w-full aspect-square bg-[#FFFBF5] rounded-2xl border-4 border-[#1E1E1E] shadow-[6px_6px_0px_0px_#1E1E1E] overflow-hidden cursor-grab active:cursor-grabbing select-none"
+      className="relative w-full h-full bg-[#FFFBF5] rounded-2xl border-4 border-[#1E1E1E] shadow-[6px_6px_0px_0px_#1E1E1E] overflow-hidden cursor-grab active:cursor-grabbing select-none"
     >
       {/* Memphis 几何装饰 */}
       <div className="absolute top-2 left-3 w-4 h-4 rounded-full border border-[#1E1E1E] opacity-10 pointer-events-none" />
