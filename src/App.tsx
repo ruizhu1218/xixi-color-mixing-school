@@ -164,7 +164,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen h-screen w-full bg-[#FDF6EC] text-[#1E1E1E] font-sans flex overflow-hidden relative select-none">
+    <div className="w-full bg-[#FDF6EC] text-[#1E1E1E] font-sans flex overflow-hidden relative select-none" style={{ height: '100dvh', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
       {/* 1. Subtle, stylish Memphis Geometric Deco elements floating in background */}
       <div className="absolute top-10 left-[5%] w-16 h-16 rounded-full border-4 border-dotted border-[#E63329] opacity-5 pointer-events-none" />
       <div className="absolute top-1/4 right-[10%] w-24 h-12 bg-[#FBB040] opacity-5 pointer-events-none -rotate-12 rounded-xl" />

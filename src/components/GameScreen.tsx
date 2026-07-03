@@ -300,7 +300,7 @@ export default function GameScreen({
       </div>
 
       {/* 7. FIXED STICKY CONTROL BOTTOM BAR */}
-      <footer className="absolute bottom-0 left-0 right-0 p-4 border-t-3 border-[#1E1E1E] bg-white z-30 shadow-[0_-8px_20px_rgba(30,30,30,0.08)] flex flex-col gap-3">
+      <footer className="absolute bottom-0 left-0 right-0 p-4 border-t-3 border-[#1E1E1E] bg-white z-30 shadow-[0_-8px_20px_rgba(30,30,30,0.08)] flex flex-col gap-3" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
         {/* WARNING ALERT NOTIFICATION */}
         <AnimatePresence>
           {warningMsg && (
