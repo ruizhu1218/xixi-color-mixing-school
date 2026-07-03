@@ -149,10 +149,10 @@ export default function GameScreen({
     return acc;
   }, {} as { [id: string]: number });
 
-  // Filter BASE_COLORS to current level's allowed colors
-  const allowedPaints = BASE_COLORS.filter((c) =>
-    level.allowedColors.includes(c.id)
-  );
+  // 生存挑战展示完整基础颜料盘，避免候选色泄露接近答案的提示。
+  const allowedPaints = isSurvival
+    ? BASE_COLORS
+    : BASE_COLORS.filter((c) => level.allowedColors.includes(c.id));
 
   return (
     <div id="game-screen-root" className="flex flex-col h-full select-none relative bg-[#FDF6EC]">
@@ -205,7 +205,7 @@ export default function GameScreen({
       </header>
 
       {/* Main Content: flex layout, no scroll */}
-      <div className="flex-1 flex flex-col min-h-0 px-4 py-2 max-w-md mx-auto w-full space-y-2" style={{ paddingBottom: 'calc(0.5rem + env(safe-area-inset-bottom, 0px))' }}>
+      <div className="flex-1 flex flex-col min-h-0 px-4 py-2 max-w-md mx-auto w-full space-y-2" style={{ paddingBottom: 'calc(5.75rem + env(safe-area-inset-bottom, 0px))' }}>
         {/* 2. TARGET COLOR SPEC CARD (compact) */}
         <div className="flex-shrink-0 bg-white rounded-2xl border-3 border-[#1E1E1E] p-2.5 shadow-[4px_4px_0px_0px_#1E1E1E] flex items-center gap-3">
           {/* Target Orb */}
@@ -216,17 +216,14 @@ export default function GameScreen({
             </div>
           </div>
           <div className="flex-1 min-w-0">
-            <span className="text-[9px] uppercase font-bold tracking-widest text-[#9A3412] bg-[#FFedd5] px-1.5 py-0.5 rounded-md border border-[#9A3412]/20">
-              目标色 Target
-            </span>
-            <h2 className="text-sm font-bold text-[#1E1E1E] truncate">{level.name}</h2>
-            <p className="text-[10px] text-[#6B5A4E] leading-tight truncate">{level.description}</p>
+            <h2 className="text-sm font-bold text-[#1E1E1E]">{level.name}</h2>
+            <p className="text-[10px] text-[#6B5A4E] leading-tight">{level.description}</p>
           </div>
         </div>
 
-        {/* 3. CANVAS: 自适应填满剩余空间，正方形约束 */}
-        <div className="flex-1 min-h-0 w-full flex items-center justify-center">
-          <div className="aspect-square max-h-full max-w-full" style={{ width: '100%', maxWidth: '100%' }}>
+        {/* 3. CANVAS: 外框填满可用宽度与高度，内部绘制保持等比 */}
+        <div className="flex-1 min-h-[180px] w-full flex items-stretch justify-center">
+          <div className="w-full h-full">
             <PaintCanvas
               balls={balls}
               setBalls={setBalls}
@@ -243,8 +240,14 @@ export default function GameScreen({
             <span className="text-[9px] text-gray-500">最多 {level.maxBalls} 个球</span>
           </div>
 
-          {/* Horizontal scroll of paint color swatches (compact) */}
-          <div className="flex gap-3 overflow-x-auto py-1 no-scrollbar">
+          <div
+            className={
+              isSurvival
+                ? "grid gap-x-2 gap-y-1 py-1"
+                : "flex gap-3 overflow-x-auto py-1 no-scrollbar"
+            }
+            style={isSurvival ? { gridTemplateColumns: "repeat(auto-fit, minmax(38px, 1fr))" } : undefined}
+          >
             {allowedPaints.map((color) => {
               const count = colorCounts[color.id] || 0;
               const hasAdded = count > 0;
@@ -253,8 +256,8 @@ export default function GameScreen({
                 <button
                   key={color.id}
                   onClick={() => handleAddPaint(color)}
-                  className="cursor-pointer flex flex-col items-center flex-shrink-0 focus:outline-none relative"
-                  style={{ minWidth: "44px" }}
+                  className="cursor-pointer flex flex-col items-center flex-shrink-0 focus:outline-none relative min-w-0"
+                  style={isSurvival ? undefined : { minWidth: "44px" }}
                 >
                   <div
                     className={`relative w-9 h-9 rounded-full flex items-center justify-center transition-all ${
@@ -279,8 +282,8 @@ export default function GameScreen({
           </div>
         </div>
 
-        {/* Bottom bar: in flex flow, popups overlay above */}
-        <div className="flex-shrink-0 relative px-4 py-3 border-t-3 border-[#1E1E1E] bg-white shadow-[0_-8px_20px_rgba(30,30,30,0.08)]" style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}>
+        {/* Bottom bar: fixed to mobile viewport, bounded to game frame on larger screens */}
+        <div className="fixed sm:absolute left-0 right-0 bottom-0 z-30 px-4 py-3 border-t-3 border-[#1E1E1E] bg-white shadow-[0_-8px_20px_rgba(30,30,30,0.08)]" style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom, 0px))' }}>
           {/* Popups overlay above buttons (absolute, bottom-full) */}
           <div className="absolute bottom-full left-0 right-0 px-4 pb-3 pointer-events-none">
             <AnimatePresence>
@@ -351,7 +354,7 @@ export default function GameScreen({
                     </div>
 
                     {/* Target Sphere */}
-                    <div className="relative w-12 h-12 rounded-full border-2 border-[#1E1E1E] z-0 opacity-80">
+                    <div className="relative w-12 h-12 rounded-full border-2 border-[#1E1E1E] z-0">
                       <div
                         className="w-full h-full rounded-full"
                         style={{

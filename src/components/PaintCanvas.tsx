@@ -14,6 +14,25 @@ const BG_R = 253;
 const BG_G = 251;
 const BG_B = 245;
 
+function getViewportTransform(width: number, height: number) {
+  const scale = Math.min(width, height) / 300;
+  const offsetX = (width - 300 * scale) / 2;
+  const offsetY = (height - 300 * scale) / 2;
+  return { scale, offsetX, offsetY };
+}
+
+function clientPointToLogical(
+  clientX: number,
+  clientY: number,
+  rect: DOMRect
+) {
+  const { scale, offsetX, offsetY } = getViewportTransform(rect.width, rect.height);
+  return {
+    x: (clientX - rect.left - offsetX) / scale,
+    y: (clientY - rect.top - offsetY) / scale,
+  };
+}
+
 // 把渲染逻辑抽成独立函数，用 ref 数据而非 state，避免 React 重渲染开销
 function renderCanvas(
   canvas: HTMLCanvasElement,
@@ -118,13 +137,13 @@ function renderCanvas(
     oCtx.putImageData(imgData, 0, 0);
   }
 
-  // 绘制离屏画布到主画布
+  // 绘制离屏画布到主画布：画板外框可变形，调色区域始终等比居中。
   ctx.clearRect(0, 0, width, height);
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(offscreen, 0, 0, 300, 300, 0, 0, width, height);
-
-  const S = width / 300;
+  const { scale: S, offsetX, offsetY } = getViewportTransform(width, height);
+  const drawSize = 300 * S;
+  ctx.drawImage(offscreen, 0, 0, 300, 300, offsetX, offsetY, drawSize, drawSize);
 
   if (ballCount === 0) {
     // 引导文字
@@ -132,14 +151,14 @@ function renderCanvas(
     ctx.font = "bold 15px 'DM Sans', sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.fillText("从下方颜料盘点击添加颜料球", width / 2, height / 2 - 24);
-    ctx.fillText("拖动圆球重叠来混色", width / 2, height / 2 + 2);
-    ctx.fillText("双击圆球可以将其移除", width / 2, height / 2 + 28);
+    ctx.fillText("从下方颜料盘点击添加颜料球", offsetX + drawSize / 2, offsetY + drawSize / 2 - 24);
+    ctx.fillText("拖动圆球重叠来混色", offsetX + drawSize / 2, offsetY + drawSize / 2 + 2);
+    ctx.fillText("双击圆球可以将其移除", offsetX + drawSize / 2, offsetY + drawSize / 2 + 28);
   } else {
     // 绘制每个球的轮廓、标签
     balls.forEach((b) => {
-      const rx = b.x * S;
-      const ry = b.y * S;
+      const rx = offsetX + b.x * S;
+      const ry = offsetY + b.y * S;
       const rr = b.r * S;
 
       // 虚线轮廓
@@ -230,8 +249,8 @@ export default function PaintCanvas({
 
     const observer = new ResizeObserver((entries) => {
       if (!entries || entries.length === 0) return;
-      const { width } = entries[0].contentRect;
-      dimensionsRef.current = { width, height: width };
+      const { width, height } = entries[0].contentRect;
+      dimensionsRef.current = { width, height };
       // 非拖动时直接重绘
       if (!draggedBallIdRef.current) {
         draw();
@@ -258,9 +277,7 @@ export default function PaintCanvas({
     if (!canvas) return;
 
     const rect = canvas.getBoundingClientRect();
-    const scale = 300 / rect.width;
-    const lx = (e.clientX - rect.left) * scale;
-    const ly = (e.clientY - rect.top) * scale;
+    const { x: lx, y: ly } = clientPointToLogical(e.clientX, e.clientY, rect);
     const now = Date.now();
 
     // 从上层往下找被点击的球
@@ -321,9 +338,7 @@ export default function PaintCanvas({
     if (!canvas) return;
 
     const rect = canvas.getBoundingClientRect();
-    const scale = 300 / rect.width;
-    const lx = (e.clientX - rect.left) * scale;
-    const ly = (e.clientY - rect.top) * scale;
+    const { x: lx, y: ly } = clientPointToLogical(e.clientX, e.clientY, rect);
 
     const targetX = lx - dragOffsetRef.current.x;
     const targetY = ly - dragOffsetRef.current.y;
