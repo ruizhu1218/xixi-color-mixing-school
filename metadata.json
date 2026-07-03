@@ -1,0 +1,6 @@
+{
+  "name": "茜茜的调色学堂",
+  "description": "手机端油画颜料真实调色学习闯关游戏，支持真实减色物理模拟混合。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
